@@ -15,7 +15,7 @@
 
 ### Installation & Running
 ```
-cd frontend
+cd frontend/secureVEA
 npm install
 npm run dev
 ```
