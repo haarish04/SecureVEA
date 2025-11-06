@@ -43,5 +43,3 @@ The application provides sufficient proof to agents to decide if the case is a l
 - **Location Retrieval:** Detects unusual locations for the customer device.
 
 ---
-
-This README serves as documentation for the VEA authentication solution, outlining key concepts, process steps, and the network APIs leveraged to make fraud risk assessments.
