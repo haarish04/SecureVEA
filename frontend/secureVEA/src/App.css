@@ -1,6 +1,11 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.app-container{
+  justify-content: center;
+  margin-left: 500px;
+  display: flex;
+  margin-top: 200px;
+}
+
+.vea-container {
+  justify-content: center;
+  margin-top: 100px;
 }

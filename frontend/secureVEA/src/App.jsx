@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './App.css'
 import InputForm from './components/InputForm';
 import ResultBox from './components/ResultBox';
 const apiEndpoints = {
@@ -70,39 +71,41 @@ export default function App() {
   };
 
   return (
-    <div className="container" style={{ padding: '2rem' }}>
-      <h2>Validate Customer</h2>
-      <InputForm onCheck={makeApiCall} />
+    <div className="app-container">
+      <div className="vea-container">
+        <h2>Validate Customer</h2>
+        <InputForm onCheck={makeApiCall} />
 
-      {Object.keys(apiEndpoints).map((key) => {
-        // only display results for main endpoints, not the retrieval-date ones
-        if (key === 'device-retrieval-date' || key === 'sim-retrieval-date') return null;
-        return (
-          <div key={key} style={{ marginTop: '1.5rem' }}>
-            {loadingFor === key ? (
-              <div className="loading">Loading {key} check...</div>
-            ) : (
-              <>
-                <ResultBox title={key.replace(/-/g, ' ').toUpperCase()} data={results[key]} error={errors[key]} />
-                {key === 'device' && results['device-retrieval-date'] && (
-                  <ResultBox
-                    title="DEVICE SWAP DATE"
-                    data={results['device-retrieval-date']}
-                    error={errors['device-retrieval-date']}
-                  />
-                )}
-                {key === 'sim-swap' && results['sim-retrieval-date'] && (
-                  <ResultBox
-                    title="SIM SWAP DATE"
-                    data={results['sim-retrieval-date']}
-                    error={errors['sim-retrieval-date']}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        );
-      })}
+        {Object.keys(apiEndpoints).map((key) => {
+          // only display results for main endpoints, not the retrieval-date ones
+          if (key === 'device-retrieval-date' || key === 'sim-retrieval-date') return null;
+          return (
+            <div key={key} style={{ marginTop: '1.5rem' }}>
+              {loadingFor === key ? (
+                <div className="loading">Checking {key}...=</div>
+              ) : (
+                <>
+                  <ResultBox title={key.replace(/-/g, ' ').toUpperCase()} data={results[key]} error={errors[key]} />
+                  {key === 'device' && results['device-retrieval-date'] && (
+                    <ResultBox
+                      title="DEVICE SWAP DATE"
+                      data={results['device-retrieval-date']}
+                      error={errors['device-retrieval-date']}
+                    />
+                  )}
+                  {key === 'sim-swap' && results['sim-retrieval-date'] && (
+                    <ResultBox
+                      title="SIM SWAP DATE"
+                      data={results['sim-retrieval-date']}
+                      error={errors['sim-retrieval-date']}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
