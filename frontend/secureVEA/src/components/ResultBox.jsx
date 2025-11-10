@@ -51,10 +51,23 @@ export default function ResultBox({ title, data, error }) {
     }
   }
 
+  function prettyPrintObject(obj) {
+  if (!obj || Object.keys(obj).length === 0) return null;
+  return Object.entries(obj)
+    .map(([k, v]) => `  "${k}": ${typeof v === "string" ? `"${v}"` : v}`)
+    .join('\n');
+}
+
+
   return (
     <div>
-      <b>{title}</b>: {msg}
-      {data && <pre className="details">{JSON.stringify(data, null, 2)}</pre>}
+      <div className="result-box-title">{title}</div>
+      <div>{msg}</div>
+      {data && Object.keys(data).length > 0 && (
+        <pre className="result-box-json">
+          {prettyPrintObject(data)}
+        </pre>
+      )}
     </div>
   );
 }

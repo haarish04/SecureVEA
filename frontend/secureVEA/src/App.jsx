@@ -82,9 +82,9 @@ export default function App() {
           return (
             <div key={key} style={{ marginTop: '1.5rem' }}>
               {loadingFor === key ? (
-                <div className="loading">Checking {key}...=</div>
+                <div className="loading">Checking {key}...</div>
               ) : (
-                <>
+                <div className='result-box'>
                   <ResultBox title={key.replace(/-/g, ' ').toUpperCase()} data={results[key]} error={errors[key]} />
                   {key === 'device' && results['device-retrieval-date'] && (
                     <ResultBox
@@ -100,7 +100,7 @@ export default function App() {
                       error={errors['sim-retrieval-date']}
                     />
                   )}
-                </>
+                </div>
               )}
             </div>
           );
