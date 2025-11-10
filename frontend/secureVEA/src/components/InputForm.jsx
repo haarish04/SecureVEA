@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './InputForm.css'
 
 export default function InputForm({ onCheck }) {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -18,7 +19,6 @@ export default function InputForm({ onCheck }) {
         <input
           type="text"
           className="vea-input"
-          placeholder="e.g. +99999991000"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
         />
