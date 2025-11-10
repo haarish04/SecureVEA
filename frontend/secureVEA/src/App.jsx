@@ -72,6 +72,7 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <h1 className="main-heading">SecureVEA</h1>
       <div className="vea-container">
         <h2>Validate Customer</h2>
         <InputForm onCheck={makeApiCall} />
