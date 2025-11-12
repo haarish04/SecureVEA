@@ -1,68 +1,71 @@
-export default function ResultBox({ title, data, error }) {
-  if (!data && !error) return null;
+function FormatKey(key) {
+  return key
+    .replace(/[_-]/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
 
-  let msg = '';
+// Helper: Generate display message based on key and data
+function getResultMessage(title, data, error) {
+  if (error) return `Error: ${error}`;
 
-  if (error) {
-    msg = `Error: ${error}`;
-  } else if (data) {
-    if (title.toLowerCase().includes('device') && !title.toLowerCase().includes('date')) {
-      // device swap check
-      if (data.swapped === false) {
-        msg = 'No device swap detected';
-      } else if (data.swapped === true) {
-        msg = 'Device swap detected';
-      } else {
-        msg = 'No device swap data available or Unknown';
-      }
-    } else if (title.toLowerCase().includes('sim') && !title.toLowerCase().includes('date')) {
-      // sim swap check
-      if (data.swapped === false) {
-        msg = 'No SIM swap detected';
-      } else if (data.swapped === true) {
-        msg = 'SIM swap detected';
-      } else {
-        msg = 'No SIM swap data available or Unknown';
-      }
-    } else if (title.toLowerCase().includes('call forwarding')) {
-      if (data.active === false) {
-        msg = 'No call forwarding setup';
-      } else if (data.active === true) {
-        msg = 'Call forwarding active';
-      } else {
-        msg = 'No call forwarding data available or Unknown';
-      }
-    }
-    // New case: handle sim/device swap date messages
-    else if (title.toLowerCase().includes('sim swap date')) {
-      if (data.latestSimChange) {
-        msg = `Latest SIM change detected on ${new Date(data.latestSimChange).toLocaleString()}`;
-      } else {
-        msg = 'No SIM swap date available';
-      }
-    } else if (title.toLowerCase().includes('device swap date')) {
-      if (data.latestDeviceChange) {
-        msg = `Latest device change detected on ${new Date(data.latestDeviceChange).toLocaleString()}`;
-      } else {
-        msg = 'No device swap date available';
-      }
-    } else {
-      msg = 'No relevant data available';
-    }
+  const t = title.toLowerCase();
+
+  // Device/Sim swap
+  if (t.includes('swap') && !t.includes('date')) {
+    if (data.swapped === false) return `No ${t.includes('sim') ? "SIM" : "device"} swap detected`;
+    if (data.swapped === true) return `${t.includes('sim') ? "SIM" : "Device"} swap detected`;
+    return `No ${t.includes('sim') ? "SIM" : "device"} swap data available or Unknown`;
+  }
+  // Swap date
+  if (t.includes('sim swap date') && data.latestSimChange)
+    return `Latest SIM change detected on ${new Date(data.latestSimChange).toLocaleString()}`;
+  if (t.includes('device swap date') && data.latestDeviceChange)
+    return `Latest device change detected on ${new Date(data.latestDeviceChange).toLocaleString()}`;
+
+  // Call forwarding
+  if (t.includes('call forwarding')) {
+    if (data.active === false) return 'No call forwarding setup';
+    if (data.active === true) return 'Call forwarding active';
+    return 'No call forwarding data available or Unknown';
   }
 
-  function prettyPrintObject(obj) {
-  if (!obj || Object.keys(obj).length === 0) return null;
+  // Location retrieval
+  if (t.includes('location') && data.lastLocationTime) {
+    return `Latest location as of ${new Date(data.lastLocationTime).toLocaleString()}`;
+  }
+
+  // Fallback
+  return 'No relevant data available';
+}
+
+// Modular recursive pretty printer for nested objects & arrays
+function prettyPrintObject(obj, indent = 2) {
+  if (!obj || typeof obj !== 'object') return String(obj);
+  if (Array.isArray(obj)) {
+    return obj
+      .map(v => prettyPrintObject(v, indent + 2))
+      .join('\n');
+  }
   return Object.entries(obj)
-    .map(([k, v]) => `  "${k}": ${typeof v === "string" ? `"${v}"` : v}`)
+    .map(([key, value]) => {
+      if (typeof value === 'object' && value !== null) {
+        return `${' '.repeat(indent)}"${key}": {\n${prettyPrintObject(value, indent + 2)}\n${' '.repeat(indent)}}`;
+      } else {
+        return `${' '.repeat(indent)}"${key}": ${typeof value === 'string' ? `"${value}"` : value}`;
+      }
+    })
     .join('\n');
 }
 
+export default function ResultBox({ title, data, error }) {
+  if (!data && !error) return null;
+
+  const message = getResultMessage(title, data, error);
 
   return (
     <div>
-      <div className="result-box-title">{title}</div>
-      <div>{msg}</div>
+      <div className="result-box-title">{FormatKey(title)}</div>
+      <div>{message}</div>
       {data && Object.keys(data).length > 0 && (
         <pre className="result-box-json">
           {prettyPrintObject(data)}
