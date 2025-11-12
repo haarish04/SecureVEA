@@ -27,11 +27,14 @@ export default function InputForm({ onCheck }) {
         <button className="vea-btn" onClick={() => handleSubmit('sim-swap')}>
           Check SIM Swap
         </button>
-        <button className="vea-btn" onClick={() => handleSubmit('device')}>
+        <button className="vea-btn" onClick={() => handleSubmit('device-swap')}>
           Check Device
         </button>
         <button className="vea-btn" onClick={() => handleSubmit('call-forwarding')}>
           Check Call Forwarding
+        </button>
+        <button className="vea-btn" onClick={() => handleSubmit('location-retrieval')}>
+          Check location
         </button>
       </div>
     </div>
