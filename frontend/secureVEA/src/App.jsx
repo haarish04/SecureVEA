@@ -4,10 +4,11 @@ import InputForm from './components/InputForm';
 import ResultBox from './components/ResultBox';
 const apiEndpoints = {
   'sim-swap': 'http://localhost:8000/sim-swap/check',
-  'device': 'http://localhost:8000/device-swap/check',
+  'device-swap': 'http://localhost:8000/device-swap/check',
   'call-forwarding': 'http://localhost:8000/call-forwarding',
   'device-retrieval-date': 'http://localhost:8000/device-swap/retrieve-date',
   'sim-retrieval-date': 'http://localhost:8000/sim-swap/retrieve-date',
+  'location-retrieval': 'http://localhost:8000/location/retrieve'
 };
 
 export default function App() {
@@ -17,8 +18,18 @@ export default function App() {
 
   const makeApiCall = async (type, phoneNumber) => {
     setLoadingFor(type);
-    setErrors((prev) => ({ ...prev, [type]: null }));
-    setResults((prev) => ({ ...prev, [type]: null }));
+    setErrors((prev) => ({
+      ...prev,
+      [type]: null,
+      ...(type === 'device-swap' ? { 'device-retrieval-date': null } : {}),
+      ...(type === 'sim-swap' ? { 'sim-retrieval-date': null } : {}),
+    }));
+    setResults((prev) => ({
+      ...prev,
+      [type]: null,
+      ...(type === 'device-swap' ? { 'device-retrieval-date': null } : {}),
+      ...(type === 'sim-swap' ? { 'sim-retrieval-date': null } : {}),
+    }));
 
     try {
       const res = await fetch(apiEndpoints[type], {
@@ -32,7 +43,7 @@ export default function App() {
       const updatedResults = { [type]: data };
 
       // Additional calls if sim-swap or device swap detected
-      if (type === 'device' && data.swapped === true) {
+      if (type === 'device-swap' && data.swapped === true) {
         try {
           const dateRes = await fetch(apiEndpoints['device-retrieval-date'], {
             method: 'POST',
@@ -87,7 +98,7 @@ export default function App() {
               ) : (
                 <div className='result-box'>
                   <ResultBox title={key.replace(/-/g, ' ').toUpperCase()} data={results[key]} error={errors[key]} />
-                  {key === 'device' && results['device-retrieval-date'] && (
+                  {key === 'device-swap' && results['device-retrieval-date'] && (
                     <ResultBox
                       title="DEVICE SWAP DATE"
                       data={results['device-retrieval-date']}
