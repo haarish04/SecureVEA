@@ -8,5 +8,6 @@ class Secrets:
     RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
     RAPIDAPI_HOST = os.getenv("RAPIDAPI_HOST")
     CERTS_PATH = os.getenv("CERTS_PATH")
+    GOOGLE_API_KEY=os.getenv("GOOGLE_API_KEY")
 
 secrets = Secrets()
