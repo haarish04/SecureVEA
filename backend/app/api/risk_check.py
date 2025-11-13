@@ -6,6 +6,7 @@ from app.config.secrets import secrets
 from app.api.sim_swap import sim_swap_check_api, sim_swap_retrieve_date_api
 from app.api.device_swap import device_swap_api, device_swap_date_api
 from app.api.call_forwarding import call_forwarding_api, unconditional_call_forwarding_api
+from app.api.risk_analyzer import call_llm_for_risk_analysis
 
 async def risk_check_api(data: RiskCheckRequest):
     results = {}
@@ -41,15 +42,15 @@ async def risk_check_api(data: RiskCheckRequest):
 
     if device_swap_status is True:
         try:
-            device_swap_date = await retrieve_date_api(data.phoneNumber)
-            results['device_swap_date'] = device_date
+            device_swap_date = await device_swap_date_api(data.phoneNumber)
+            results['device_swap_date'] = device_swap_date
         except Exception as e:
             results['device_swap_date'] = str(e)
 
     if sim_swap_status is True:
             try:
                 sim_swap_date = await sim_swap_retrieve_date_api(data.phoneNumber)
-                results['sim_swap_date'] = sim_date
+                results['sim_swap_date'] = sim_swap_date
             except Exception as e:
                 results['sim_swap_date'] = str(e)
 
@@ -64,6 +65,26 @@ async def risk_check_api(data: RiskCheckRequest):
         status = "Fraud"
     else:
         status = "Spam or Warning"
+    
+    llm_context = {
+        "device_swap": results.get("device_swap"),
+        "device_swap_date": results.get("device_swap_date"),
+        "sim_swap": results.get("sim_swap"),
+        "sim_swap_date": results.get("sim_swap_date"),
+        "call_forwarding": results.get("call_forwarding")
+    }
+
+    try:
+        llm_response = await call_llm_for_risk_analysis(llm_context)
+        llm_content = llm_response["candidates"][0]["content"]["parts"][0]["text"]
+        llm_json = {}
+        # Try to parse the LLM response as JSON
+        try:
+            llm_json = json.loads(llm_content)
+        except Exception:
+            llm_json = {"fraud_score": None, "rationale": llm_content}
+    except Exception as e:
+        llm_json = {"fraud_score": None, "rationale": f"LLM error: {str(e)}"}
 
     return {
         "status": status,
@@ -72,5 +93,15 @@ async def risk_check_api(data: RiskCheckRequest):
         "sim_swap_result": sim_msg,
         "sim_swap_date": results.get('sim_swap_date'),
         "call_forwarding_result": call_forwarding_status_msg,
-        "Network API results": results
+        "llm_fraud_score": llm_json.get("fraud_score"),
+        "llm_rationale": llm_json.get("rationale"),
     }
+
+    # return {
+    #     "status": status,
+    #     "device_swap_result": device_msg,
+    #     "device_swap_date": results.get('device_swap_date'),
+    #     "sim_swap_result": sim_msg,
+    #     "sim_swap_date": results.get('sim_swap_date'),
+    #     "call_forwarding_result": call_forwarding_status_msg,
+    # }

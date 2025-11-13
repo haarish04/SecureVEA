@@ -11,6 +11,7 @@ from app.api.device_swap import device_swap_api, device_swap_date_api
 from app.api.call_forwarding import call_forwarding_api, unconditional_call_forwarding_api
 from app.api.location_check import location_retrieval_api, location_verification_api
 from app.api.risk_check import risk_check_api
+from app.api.llmtest import testllm
 
 router = APIRouter()
 
@@ -75,13 +76,21 @@ async def location_verification(data: LocationVerifyRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# @router.post("/risk-profile")
-# async def risk(data: RiskCheckRequest):
-#     try:
-#         result = await risk_check_api(data)
-#         return result
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+@router.post("/risk-profile")
+async def risk(data: RiskCheckRequest):
+    try:
+        result = await risk_check_api(data)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/test-llm")
+async def test():
+    try:
+        result = await testllm()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # @app.post("/transcribe-file")        
